@@ -10,8 +10,24 @@ const { connectToDb } = require("./db/connect");
 
 app.use(express.json());
 
+// Swagger JSON endpoint
+app.get("/api-docs.json", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.send(swaggerSpecs);
+});
+
 // Swagger documentation
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
+const swaggerOptions = {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: "Contacts API Documentation",
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+    url: "/api-docs.json", // Use the JSON endpoint
+  },
+};
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs, swaggerOptions));
 
 app.use("/contacts", contactsRoutes);
 // app.use('/', indexRoutes);

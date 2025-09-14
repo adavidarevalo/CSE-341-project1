@@ -1,5 +1,16 @@
 const swaggerJsdoc = require("swagger-jsdoc");
 
+// Determine the base URL for the API
+const getBaseUrl = () => {
+  if (process.env.RENDER_URL) {
+    return process.env.RENDER_URL;
+  }
+  if (process.env.NODE_ENV === "production") {
+    return "https://cse-341-project1-jpua.onrender.com"; // Replace with your actual Render URL
+  }
+  return "http://localhost:3000";
+};
+
 const options = {
   definition: {
     openapi: "3.0.0",
@@ -10,8 +21,11 @@ const options = {
     },
     servers: [
       {
-        url: process.env.RENDER_URL || "http://localhost:3000",
-        description: "Development server",
+        url: getBaseUrl(),
+        description:
+          process.env.NODE_ENV === "production"
+            ? "Production server"
+            : "Development server",
       },
     ],
     components: {
