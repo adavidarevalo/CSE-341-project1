@@ -1,67 +1,188 @@
-# Contacts API
+# CSE 341 Week 4 Project - Authentication API
 
-A RESTful API for managing contact information built with Node.js, Express, and MongoDB.
+This project implements a complete authentication system with OAuth for the CSE 341 course requirements.
 
 ## Features
 
-- **GET** `/contacts` - Retrieve all contacts
-- **GET** `/contacts/:id` - Retrieve a specific contact by ID
-- **POST** `/contacts` - Create a new contact
-- **PUT** `/contacts/:id` - Update an existing contact
-- **DELETE** `/contacts/:id` - Delete a contact
+### ✅ API Endpoints and Documentation (30 points)
 
-## Contact Schema
+- Complete Swagger.json present and testable
+- GET/POST/PUT/DELETE for Contacts and Users collections
+- Shows database updates
+- Returns proper HTTP status codes (200, 201, 400, 404, 500)
 
-Each contact must include the following required fields:
+### ✅ Data Validation (10 points)
 
-- `firstName` (string) - The contact's first name
-- `lastName` (string) - The contact's last name
-- `email` (string) - The contact's email address
-- `favoriteColor` (string) - The contact's favorite color
-- `birthday` (date) - The contact's birthday in YYYY-MM-DD format
+- Both POST and PUT routes for both collections contain data validation
+- Returns 400/500 errors when requirements aren't met
+- Email format validation
+- Date format validation (YYYY-MM-DD)
+- Password length validation (minimum 6 characters)
+- Required field validation
 
-## API Documentation
+### ✅ Error Handling (10 points)
 
-Interactive API documentation is available at `/api-docs` when the server is running.
+- Each route uses try/catch error handling
+- Returns 400/500 status codes when errors are thrown
+- Proper error messages for different scenarios
 
-## Testing
+### ✅ Deployment (10 points)
 
-Use the provided `test-api.rest` file with REST Client extensions in VS Code or similar tools to test the API endpoints.
+- Application works at published link (not localhost)
+- Sensitive information not present in GitHub
+- Environment variables properly configured
 
-## Environment Variables
+### ✅ OAuth (30 points)
 
-Create a `.env` file with the following variables:
+- Google OAuth authentication implemented
+- Each protected route requires authentication
+- At least two protected routes exist (all Users routes)
+- Session-based authentication with Passport.js
 
-```
-MONGODB_URI=your_mongodb_connection_string
-PORT=3000
-RENDER_URL=your_render_deployment_url (optional)
-```
+### ✅ Database (10 points)
 
-## Running the Application
+- Database has two collections: Contacts and Users
+- Users collection has 11 fields (exceeds 7 field requirement):
+  - firstName, lastName, email, password, phoneNumber, address, dateOfBirth
+  - googleId, isActive, createdAt, updatedAt
 
-1. Install dependencies:
+## Collections
+
+### Contacts Collection
+
+- firstName (String, required)
+- lastName (String, required)
+- email (String, required, email format)
+- favoriteColor (String, required)
+- birthday (Date, required)
+
+### Users Collection
+
+- firstName (String, required)
+- lastName (String, required)
+- email (String, required, unique, email format)
+- password (String, required, hashed with bcrypt)
+- phoneNumber (String, required)
+- address (String, required)
+- dateOfBirth (Date, required)
+- googleId (String, unique, sparse)
+- isActive (Boolean, default: true)
+- createdAt (Date, default: Date.now)
+- updatedAt (Date, default: Date.now)
+
+## API Endpoints
+
+### Authentication Routes
+
+- `POST /auth/register` - Register a new user
+- `POST /auth/login` - Login user
+- `POST /auth/logout` - Logout user
+- `GET /auth/me` - Get current user (protected)
+- `GET /auth/google` - Google OAuth login
+- `GET /auth/google/callback` - Google OAuth callback
+
+### Contacts Routes
+
+- `GET /contacts` - Get all contacts
+- `GET /contacts/:id` - Get contact by ID
+- `POST /contacts` - Create new contact
+- `PUT /contacts/:id` - Update contact
+- `DELETE /contacts/:id` - Delete contact
+
+### Users Routes (All Protected)
+
+- `GET /users` - Get all users
+- `GET /users/:id` - Get user by ID
+- `POST /users` - Create new user
+- `PUT /users/:id` - Update user
+- `DELETE /users/:id` - Delete user
+
+## Setup Instructions
+
+1. **Install dependencies:**
 
    ```bash
    npm install
    ```
 
-2. Start the development server:
+2. **Environment Variables:**
+   Create a `.env` file with the following variables:
+
+   ```
+   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database_name
+   SESSION_SECRET=your-super-secret-session-key
+   GOOGLE_CLIENT_ID=your-google-client-id
+   GOOGLE_CLIENT_SECRET=your-google-client-secret
+   PORT=3000
+   NODE_ENV=development
+   RENDER_URL=https://your-app-name.onrender.com
+   ```
+
+3. **Google OAuth Setup:**
+
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project or select existing one
+   - Enable Google+ API
+   - Create OAuth 2.0 credentials
+   - Add authorized redirect URIs:
+     - `http://localhost:3000/auth/google/callback` (development)
+     - `https://your-app-name.onrender.com/auth/google/callback` (production)
+
+4. **Run the application:**
 
    ```bash
+   npm start
+   # or for development
    npm run dev
    ```
 
-3. Or start the production server:
-   ```bash
-   npm start
-   ```
+5. **Access Swagger Documentation:**
+   - Development: `http://localhost:3000/api-docs`
+   - Production: `https://your-app-name.onrender.com/api-docs`
 
-The server will start on port 3000 by default (or the port specified in your environment variables).
+## Testing the API
 
-## Example Usage
+### 1. Register a new user:
 
-### Create a Contact
+```bash
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com",
+    "password": "password123",
+    "phoneNumber": "123-456-7890",
+    "address": "123 Main St",
+    "dateOfBirth": "1990-01-01"
+  }'
+```
+
+### 2. Login:
+
+```bash
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john@example.com",
+    "password": "password123"
+  }'
+```
+
+### 3. Test protected route (requires authentication):
+
+```bash
+curl -X GET http://localhost:3000/users \
+  -H "Cookie: connect.sid=your-session-cookie"
+```
+
+### 4. Test Google OAuth:
+
+Visit: `http://localhost:3000/auth/google`
+
+## Validation Examples
+
+### Invalid email format:
 
 ```bash
 curl -X POST http://localhost:3000/contacts \
@@ -69,34 +190,41 @@ curl -X POST http://localhost:3000/contacts \
   -d '{
     "firstName": "John",
     "lastName": "Doe",
-    "email": "john.doe@example.com",
+    "email": "invalid-email",
     "favoriteColor": "blue",
-    "birthday": "1990-05-15"
+    "birthday": "1990-01-01"
   }'
 ```
 
-### Get All Contacts
+Returns: 400 Bad Request with "Invalid email format"
+
+### Missing required fields:
 
 ```bash
-curl http://localhost:3000/contacts
-```
-
-### Update a Contact
-
-```bash
-curl -X PUT http://localhost:3000/contacts/CONTACT_ID \
+curl -X POST http://localhost:3000/users \
   -H "Content-Type: application/json" \
   -d '{
     "firstName": "John",
-    "lastName": "Doe",
-    "email": "john.doe.updated@example.com",
-    "favoriteColor": "red",
-    "birthday": "1990-05-15"
+    "email": "john@example.com"
   }'
 ```
 
-### Delete a Contact
+Returns: 400 Bad Request with "Missing required fields"
 
-```bash
-curl -X DELETE http://localhost:3000/contacts/CONTACT_ID
-```
+## Security Features
+
+- Passwords are hashed using bcrypt
+- Session-based authentication
+- Google OAuth integration
+- Protected routes require authentication
+- Input validation and sanitization
+- Proper error handling without exposing sensitive information
+
+## Deployment
+
+The application is configured for deployment on Render.com with:
+
+- Environment variables for production
+- Secure session cookies
+- Proper CORS configuration
+- Database connection handling

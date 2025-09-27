@@ -1,6 +1,4 @@
 const swaggerJsdoc = require("swagger-jsdoc");
-
-// Determine the base URL for the API
 const getBaseUrl = () => {
   if (process.env.RENDER_URL) {
     return process.env.RENDER_URL;
@@ -29,6 +27,14 @@ const options = {
       },
     ],
     components: {
+      securitySchemes: {
+        sessionAuth: {
+          type: "apiKey",
+          in: "cookie",
+          name: "connect.sid",
+          description: "Session-based authentication",
+        },
+      },
       schemas: {
         Contact: {
           type: "object",
@@ -65,6 +71,72 @@ const options = {
               type: "string",
               format: "date",
               description: "The birthday of the contact",
+            },
+          },
+        },
+        User: {
+          type: "object",
+          required: [
+            "firstName",
+            "lastName",
+            "email",
+            "password",
+            "phoneNumber",
+            "address",
+            "dateOfBirth",
+          ],
+          properties: {
+            _id: {
+              type: "string",
+              description: "The unique identifier of the user",
+            },
+            firstName: {
+              type: "string",
+              description: "The first name of the user",
+            },
+            lastName: {
+              type: "string",
+              description: "The last name of the user",
+            },
+            email: {
+              type: "string",
+              format: "email",
+              description: "The email address of the user",
+            },
+            password: {
+              type: "string",
+              description: "The password of the user (hashed)",
+            },
+            phoneNumber: {
+              type: "string",
+              description: "The phone number of the user",
+            },
+            address: {
+              type: "string",
+              description: "The address of the user",
+            },
+            dateOfBirth: {
+              type: "string",
+              format: "date",
+              description: "The date of birth of the user",
+            },
+            googleId: {
+              type: "string",
+              description: "Google OAuth ID",
+            },
+            isActive: {
+              type: "boolean",
+              description: "Whether the user is active",
+            },
+            createdAt: {
+              type: "string",
+              format: "date-time",
+              description: "When the user was created",
+            },
+            updatedAt: {
+              type: "string",
+              format: "date-time",
+              description: "When the user was last updated",
             },
           },
         },
