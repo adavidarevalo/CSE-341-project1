@@ -103,24 +103,6 @@ router.post("/register", authController.register);
  */
 router.get("/login", authController.showLoginPage);
 
-/**
- * @swagger
- * /auth/logout:
- *   get:
- *     summary: Logout page with GitHub disconnect option
- *     tags: [Authentication]
- *     security:
- *       - sessionAuth: []
- *     responses:
- *       200:
- *         description: Logout page displayed
- *         content:
- *           text/html:
- *             schema:
- *               type: string
- *       302:
- *         description: Redirect to GitHub logout
- */
 router.get("/logout", authController.showLogoutPage);
 
 /**
@@ -150,18 +132,7 @@ router.get("/logout", authController.showLogoutPage);
  */
 router.post("/logout", authController.logout);
 
-/**
- * @swagger
- * /auth/logout/github:
- *   get:
- *     summary: Complete logout with GitHub disconnect
- *     tags: [Authentication]
- *     security:
- *       - sessionAuth: []
- *     responses:
- *       302:
- *         description: Redirect to GitHub logout then back to app
- */
+
 router.get("/logout/github", authController.githubLogout);
 
 
@@ -169,6 +140,11 @@ router.get(
   "/github/callback",
   passport.authenticate("github", { failureRedirect: "/auth/login?error=github_auth_failed" }),
   authController.githubCallback
+);
+
+router.get(
+  "/github",
+  passport.authenticate("github", { scope: ["user:email"] })
 );
 
 module.exports = router;

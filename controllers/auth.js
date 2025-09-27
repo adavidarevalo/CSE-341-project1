@@ -9,62 +9,18 @@ const isAuthenticated = (req, res, next) => {
   res.status(401).json({ message: "Authentication required" });
 };
 
-// Show login page - redirect directly to GitHub OAuth
+// Show login page - GitHub OAuth option
 const showLoginPage = (req, res) => {
-  // Verificar si hay un error en la query string
-  const error = req.query.error;
-  const message = req.query.message;
-  
-  if (error === 'github_auth_failed') {
-    const errorHtml = `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Error de Autenticación</title>
-</head>
-<body>
-    <h1>Error de Autenticación</h1>
-    <p>Hubo un problema al autenticar con GitHub. Por favor, inténtalo de nuevo.</p>
-    <a href="/auth/github">Intentar de Nuevo</a>
-</body>
-</html>`;
-    res.send(errorHtml);
-  } else if (message === 'logout_success') {
-    const successHtml = `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Sesión Cerrada</title>
-</head>
-<body>
-    <h1>Sesión Cerrada</h1>
-    <p>Has cerrado sesión exitosamente.</p>
-    <a href="/auth/github">Iniciar Sesión Nuevamente</a>
-</body>
-</html>`;
-    res.send(successHtml);
-  } else if (message === 'github_logout_success') {
-    const githubSuccessHtml = `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Logout Completo Exitoso</title>
-</head>
-<body>
-    <h1>Logout Completo Exitoso</h1>
-    <p>Has cerrado sesión en GitHub y en la aplicación completamente.</p>
-    <a href="/auth/github">Iniciar Sesión Nuevamente</a>
-</body>
-</html>`;
-    res.send(githubSuccessHtml);
+  // Check if user is already authenticated
+  if (req.isAuthenticated()) {
+    return res.redirect('/api-docs');
   } else {
-    // Redirigir directamente al OAuth de GitHub
     res.redirect('/auth/github');
   }
 };
 
-// Show logout page with GitHub disconnect option
 const showLogoutPage = (req, res) => {
+  
   if (!req.isAuthenticated()) {
     return res.redirect('/login');
   }
@@ -76,29 +32,18 @@ const showLogoutPage = (req, res) => {
     <title>Cerrar Sesión</title>
 </head>
 <body>
-    <h1>Cerrar Sesión</h1>
-    <p><strong>Usuario:</strong> ${req.user.firstName} ${req.user.lastName}</p>
-    <p><strong>Email:</strong> ${req.user.email}</p>
-    <p><strong>Conectado vía:</strong> GitHub OAuth</p>
-    
-    <h2>¿Cómo quieres cerrar sesión?</h2>
-    <p><a href="/auth/logout/github">Cerrar sesión completa (GitHub + App)</a></p>
-    <p>Cierra la sesión en GitHub y en la aplicación. Recomendado para seguridad.</p>
-    
-    <p><button onclick="logoutLocal()">Solo cerrar sesión local</button></p>
-    <p>Solo cierra la sesión en la aplicación. Mantiene la autorización en GitHub.</p>
-    
-    <p><a href="/api-docs">← Cancelar</a></p>
-    
+
+    <p><button onclick="logoutUser()">Logout</button></p>
+
     <script>
-        async function logoutLocal() {
+        async function logoutUser() {
             try {
                 const response = await fetch('/auth/logout', {
                     method: 'POST',
                     credentials: 'include'
                 });
                 if (response.ok) {
-                    window.location.href = '/login?message=logout_success';
+                    window.location.href = '/login';
                 } else {
                     alert('Error al cerrar sesión');
                 }
@@ -195,7 +140,18 @@ const logout = (req, res) => {
         .status(500)
         .json({ message: "Logout failed", error: err.message });
     }
-    res.status(200).json({ message: "Logout successful" });
+    
+    // Destroy the session to completely remove user from Passport
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Error destroying session:', err);
+        return res.status(500).json({ message: "Session destruction failed", error: err.message });
+      }
+      
+      // Clear the session cookie
+      res.clearCookie('connect.sid');
+      res.status(200).json({ message: "Logout successful" });
+    });
   });
 };
 
