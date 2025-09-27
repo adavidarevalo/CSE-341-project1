@@ -15,7 +15,34 @@ const options = {
     info: {
       title: "Contacts API",
       version: "1.0.0",
-      description: "A simple Contacts API for managing contact information",
+      description: `
+A simple Contacts API for managing contact information.
+
+## Authentication
+
+This API uses session-based authentication via GitHub OAuth.
+
+### How to authenticate:
+
+1. **Login via GitHub OAuth**: Visit \`/login\` to authenticate with GitHub
+2. **Access Protected Routes**: Once authenticated, you can access all protected endpoints
+3. **Session Management**: Your session will persist across requests via cookies
+
+### Authentication Flow:
+
+1. Navigate to \`/login\` (redirects to GitHub OAuth)
+2. Authorize the application on GitHub
+3. You'll be redirected back to the API documentation
+4. All protected routes are now accessible
+
+### Protected Routes:
+
+- All \`/contacts\` endpoints require authentication
+- All \`/users\` endpoints require authentication
+- Authentication endpoints (\`/auth/*\`) are public
+
+**Note**: To test protected endpoints in Swagger UI, first authenticate by visiting \`/login\` in the same browser session.
+      `,
     },
     servers: [
       {
@@ -32,7 +59,7 @@ const options = {
           type: "apiKey",
           in: "cookie",
           name: "connect.sid",
-          description: "Session-based authentication",
+          description: "Session-based authentication via GitHub OAuth. Visit /login to authenticate.",
         },
       },
       schemas: {

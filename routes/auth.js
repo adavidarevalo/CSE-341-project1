@@ -163,7 +163,7 @@ router.post("/logout", authController.logout);
  * @swagger
  * /auth/me:
  *   get:
- *     summary: Get current user
+ *     summary: Get current authenticated user
  *     tags: [Authentication]
  *     security:
  *       - sessionAuth: []
@@ -177,6 +177,17 @@ router.post("/logout", authController.logout);
  *               properties:
  *                 user:
  *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     firstName:
+ *                       type: string
+ *                     lastName:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     githubId:
+ *                       type: string
  *       401:
  *         description: Not authenticated
  *         content:
@@ -184,7 +195,47 @@ router.post("/logout", authController.logout);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get("/me", authController.getCurrentUser);
+router.get("/me", authController.isAuthenticated, authController.getCurrentUser);
+
+/**
+ * @swagger
+ * /auth/status:
+ *   get:
+ *     summary: Check authentication status
+ *     tags: [Authentication]
+ *     responses:
+ *       200:
+ *         description: Authentication status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 authenticated:
+ *                   type: boolean
+ *                 user:
+ *                   type: object
+ *                   nullable: true
+ */
+router.get("/status", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.json({
+      authenticated: true,
+      user: {
+        id: req.user._id,
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+        email: req.user.email,
+        githubId: req.user.githubId
+      }
+    });
+  } else {
+    res.json({
+      authenticated: false,
+      user: null
+    });
+  }
+});
 
 /**
  * @swagger

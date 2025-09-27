@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const contactsController = require("../controllers/contacts");
+const authController = require("../controllers/auth");
 
 /**
  * @swagger
@@ -8,6 +9,8 @@ const contactsController = require("../controllers/contacts");
  *   get:
  *     summary: Get all contacts
  *     tags: [Contacts]
+ *     security:
+ *       - sessionAuth: []
  *     responses:
  *       200:
  *         description: List of all contacts
@@ -17,6 +20,12 @@ const contactsController = require("../controllers/contacts");
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Contact'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Server error
  *         content:
@@ -24,7 +33,7 @@ const contactsController = require("../controllers/contacts");
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get("/", contactsController.getAllContacts);
+router.get("/", authController.isAuthenticated, contactsController.getAllContacts);
 
 /**
  * @swagger
@@ -32,6 +41,8 @@ router.get("/", contactsController.getAllContacts);
  *   get:
  *     summary: Get a contact by ID
  *     tags: [Contacts]
+ *     security:
+ *       - sessionAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -46,6 +57,12 @@ router.get("/", contactsController.getAllContacts);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Contact'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Contact not found
  *         content:
@@ -59,7 +76,7 @@ router.get("/", contactsController.getAllContacts);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get("/:id", contactsController.getContactById);
+router.get("/:id", authController.isAuthenticated, contactsController.getContactById);
 
 /**
  * @swagger
@@ -67,6 +84,8 @@ router.get("/:id", contactsController.getContactById);
  *   post:
  *     summary: Create a new contact
  *     tags: [Contacts]
+ *     security:
+ *       - sessionAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -86,6 +105,12 @@ router.get("/:id", contactsController.getContactById);
  *                     id:
  *                       type: string
  *                       description: The unique identifier of the created contact
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Server error
  *         content:
@@ -93,7 +118,7 @@ router.get("/:id", contactsController.getContactById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post("/", contactsController.createContact);
+router.post("/", authController.isAuthenticated, contactsController.createContact);
 
 /**
  * @swagger
@@ -101,6 +126,8 @@ router.post("/", contactsController.createContact);
  *   put:
  *     summary: Update a contact by ID
  *     tags: [Contacts]
+ *     security:
+ *       - sessionAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -121,6 +148,12 @@ router.post("/", contactsController.createContact);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Contact'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Contact not found
  *         content:
@@ -134,7 +167,7 @@ router.post("/", contactsController.createContact);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put("/:id", contactsController.updateContact);
+router.put("/:id", authController.isAuthenticated, contactsController.updateContact);
 
 /**
  * @swagger
@@ -142,6 +175,8 @@ router.put("/:id", contactsController.updateContact);
  *   delete:
  *     summary: Delete a contact by ID
  *     tags: [Contacts]
+ *     security:
+ *       - sessionAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -160,6 +195,12 @@ router.put("/:id", contactsController.updateContact);
  *                 message:
  *                   type: string
  *                   example: Contact deleted successfully
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Contact not found
  *         content:
@@ -173,6 +214,6 @@ router.put("/:id", contactsController.updateContact);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete("/:id", contactsController.deleteContact);
+router.delete("/:id", authController.isAuthenticated, contactsController.deleteContact);
 
 module.exports = router;
