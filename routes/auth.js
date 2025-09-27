@@ -105,38 +105,29 @@ router.get("/login", authController.showLoginPage);
 
 /**
  * @swagger
- * /auth/login:
- *   post:
- *     summary: Login user (DISABLED - OAuth only)
- *     tags: [Authentication - Disabled]
- *     deprecated: true
- *     description: This endpoint is disabled. Use Google OAuth instead via GET /auth/login
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *               password:
- *                 type: string
+ * /auth/logout:
+ *   get:
+ *     summary: Logout page with GitHub disconnect option
+ *     tags: [Authentication]
+ *     security:
+ *       - sessionAuth: []
  *     responses:
- *       501:
- *         description: Not implemented - use OAuth instead
+ *       200:
+ *         description: Logout page displayed
+ *         content:
+ *           text/html:
+ *             schema:
+ *               type: string
+ *       302:
+ *         description: Redirect to GitHub logout
  */
-// router.post("/login", authController.login); // DISABLED - OAuth only
+router.get("/logout", authController.showLogoutPage);
 
 /**
  * @swagger
  * /auth/logout:
  *   post:
- *     summary: Logout user
+ *     summary: Logout user (local session only)
  *     tags: [Authentication]
  *     security:
  *       - sessionAuth: []
@@ -158,6 +149,20 @@ router.get("/login", authController.showLoginPage);
  *               $ref: '#/components/schemas/Error'
  */
 router.post("/logout", authController.logout);
+
+/**
+ * @swagger
+ * /auth/logout/github:
+ *   get:
+ *     summary: Complete logout with GitHub disconnect
+ *     tags: [Authentication]
+ *     security:
+ *       - sessionAuth: []
+ *     responses:
+ *       302:
+ *         description: Redirect to GitHub logout then back to app
+ */
+router.get("/logout/github", authController.githubLogout);
 
 /**
  * @swagger
