@@ -15,11 +15,11 @@ const { connectToDb } = require("./db/connect");
 
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? process.env.RENDER_URL
-        : "http://localhost:3000",
-    credentials: true,
+    origin: true, 
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    credentials: true, 
+    optionsSuccessStatus: 200
   })
 );
 
