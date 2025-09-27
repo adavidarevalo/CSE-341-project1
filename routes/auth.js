@@ -81,9 +81,36 @@ router.post("/register", authController.register);
 /**
  * @swagger
  * /auth/login:
- *   post:
- *     summary: Login user
+ *   get:
+ *     summary: Redirect to GitHub OAuth login
  *     tags: [Authentication]
+ *     parameters:
+ *       - in: query
+ *         name: error
+ *         schema:
+ *           type: string
+ *           enum: [github_auth_failed]
+ *         description: Error parameter to show error message
+ *     responses:
+ *       302:
+ *         description: Redirect to GitHub OAuth or show error page
+ *       200:
+ *         description: Error page displayed
+ *         content:
+ *           text/html:
+ *             schema:
+ *               type: string
+ */
+router.get("/login", authController.showLoginPage);
+
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Login user (DISABLED - OAuth only)
+ *     tags: [Authentication - Disabled]
+ *     deprecated: true
+ *     description: This endpoint is disabled. Use Google OAuth instead via GET /auth/login
  *     requestBody:
  *       required: true
  *       content:
@@ -100,31 +127,10 @@ router.post("/register", authController.register);
  *               password:
  *                 type: string
  *     responses:
- *       200:
- *         description: Login successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 user:
- *                   type: object
- *       401:
- *         description: Invalid credentials
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *       501:
+ *         description: Not implemented - use OAuth instead
  */
-router.post("/login", authController.login);
+// router.post("/login", authController.login); // DISABLED - OAuth only
 
 /**
  * @swagger
@@ -182,28 +188,28 @@ router.get("/me", authController.getCurrentUser);
 
 /**
  * @swagger
- * /auth/google:
+ * /auth/github:
  *   get:
- *     summary: Google OAuth login
+ *     summary: GitHub OAuth login
  *     tags: [Authentication]
  *     responses:
  *       302:
- *         description: Redirect to Google OAuth
+ *         description: Redirect to GitHub OAuth
  */
 router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  "/github",
+  passport.authenticate("github", { scope: ["user:email"] })
 );
 
 /**
  * @swagger
- * /auth/google/callback:
+ * /auth/github/callback:
  *   get:
- *     summary: Google OAuth callback
+ *     summary: GitHub OAuth callback
  *     tags: [Authentication]
  *     responses:
  *       200:
- *         description: Google authentication successful
+ *         description: GitHub authentication successful
  *         content:
  *           application/json:
  *             schema:
@@ -221,9 +227,9 @@ router.get(
  *               $ref: '#/components/schemas/Error'
  */
 router.get(
-  "/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
-  authController.googleCallback
+  "/github/callback",
+  passport.authenticate("github", { failureRedirect: "/auth/login?error=github_auth_failed" }),
+  authController.githubCallback
 );
 
 module.exports = router;

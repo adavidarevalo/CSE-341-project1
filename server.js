@@ -64,6 +64,7 @@ app.use(
 app.use("/contacts", contactsRoutes);
 app.use("/auth", authRoutes);
 app.use("/users", usersRoutes);
+app.use("/", indexRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });

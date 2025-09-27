@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   phoneNumber: { type: String, required: true },
   address: { type: String, required: true },
   dateOfBirth: { type: Date, required: true },
-  googleId: { type: String, unique: true, sparse: true },
+  githubId: { type: String, unique: true, sparse: true },
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
@@ -47,8 +47,8 @@ const getByEmail = async (email) => {
   return User.findOne({ email });
 };
 
-const getByGoogleId = async (googleId) => {
-  return User.findOne({ googleId });
+const getByGithubId = async (githubId) => {
+  return User.findOne({ githubId });
 };
 
 const create = async (userData) => {
@@ -60,6 +60,7 @@ const create = async (userData) => {
     phoneNumber,
     address,
     dateOfBirth,
+    githubId,
   } = userData;
 
   if (
@@ -84,6 +85,7 @@ const create = async (userData) => {
     phoneNumber,
     address,
     dateOfBirth,
+    githubId,
   });
 
   return newUser.save();
@@ -138,7 +140,7 @@ module.exports = {
   getAll,
   getById,
   getByEmail,
-  getByGoogleId,
+  getByGithubId,
   create,
   update,
   remove,

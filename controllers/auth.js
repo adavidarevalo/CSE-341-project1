@@ -8,6 +8,101 @@ const isAuthenticated = (req, res, next) => {
   res.status(401).json({ message: "Authentication required" });
 };
 
+// Show login page - redirect directly to GitHub OAuth
+const showLoginPage = (req, res) => {
+  // Verificar si hay un error en la query string
+  const error = req.query.error;
+  
+  if (error === 'github_auth_failed') {
+    // Mostrar una página de error antes de redirigir
+    const errorHtml = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error de Autenticación - CSE341</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #24292e 0%, #586069 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .error-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .error-icon {
+            font-size: 4rem;
+            color: #e74c3c;
+            margin-bottom: 1rem;
+        }
+        
+        .error-title {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .error-message {
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        
+        .retry-btn {
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, #24292e 0%, #586069 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        
+        .retry-btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">⚠️</div>
+        <h1 class="error-title">Error de Autenticación</h1>
+        <p class="error-message">
+            Hubo un problema al autenticar con GitHub. Por favor, inténtalo de nuevo.
+        </p>
+        <a href="/auth/github" class="retry-btn">Intentar de Nuevo</a>
+    </div>
+</body>
+</html>`;
+    res.send(errorHtml);
+  } else {
+    // Redirigir directamente al OAuth de GitHub
+    res.redirect('/auth/github');
+  }
+};
+
 // Register a new user
 const register = async (req, res) => {
   try {
@@ -125,25 +220,18 @@ const getCurrentUser = (req, res) => {
   }
 };
 
-// Google OAuth callback
-const googleCallback = (req, res) => {
-  // Successful authentication, redirect to frontend or return user data
-  res.status(200).json({
-    message: "Google authentication successful",
-    user: {
-      id: req.user._id,
-      firstName: req.user.firstName,
-      lastName: req.user.lastName,
-      email: req.user.email,
-    },
-  });
+// GitHub OAuth callback
+const githubCallback = (req, res) => {
+  // Successful authentication, redirect to a success page or API docs
+  res.redirect('/api-docs?login=success');
 };
 
 module.exports = {
   isAuthenticated,
+  showLoginPage,
   register,
-  login,
+  // login, // DISABLED - OAuth only
   logout,
   getCurrentUser,
-  googleCallback,
+  githubCallback,
 };
