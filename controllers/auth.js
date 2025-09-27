@@ -20,10 +20,6 @@ const showLoginPage = (req, res) => {
 };
 
 const showLogoutPage = (req, res) => {
-  
-  if (!req.isAuthenticated()) {
-    return res.redirect('/login');
-  }
 
   const logoutHtml = `
 <!DOCTYPE html>
