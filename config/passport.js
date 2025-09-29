@@ -23,32 +23,25 @@ passport.use(
     {
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL:
-        process.env.NODE_ENV === "production"
-          ? `${process.env.RENDER_URL}/auth/github/callback`
-          : "http://localhost:3000/auth/github/callback",
+      callbackURL: "/auth/github/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        // Check if user already exists with this GitHub ID
         let user = await User.getByGithubId(profile.id);
 
         if (user) {
           return done(null, user);
         }
 
-        // Check if user exists with this email
         const email = profile.emails && profile.emails[0] ? profile.emails[0].value : `${profile.username}@github.local`;
         user = await User.getByEmail(email);
 
         if (user) {
-          // Update existing user with GitHub ID
           user.githubId = profile.id;
           await user.save();
           return done(null, user);
         }
 
-        // Create new user
         const newUser = await User.create({
           firstName: profile.displayName ? profile.displayName.split(' ')[0] : profile.username,
           lastName: profile.displayName ? profile.displayName.split(' ').slice(1).join(' ') || "GitHub User" : "GitHub User",

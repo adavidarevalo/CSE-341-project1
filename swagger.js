@@ -4,7 +4,7 @@ const getBaseUrl = () => {
     return process.env.RENDER_URL;
   }
   if (process.env.NODE_ENV === "production") {
-    return "https://cse-341-project1-jpua.onrender.com"; // Replace with your actual Render URL
+    return process.env.RENDER_URL;
   }
   return "http://localhost:3000";
 };
