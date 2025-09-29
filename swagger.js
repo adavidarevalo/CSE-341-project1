@@ -1,13 +1,7 @@
 const swaggerJsdoc = require("swagger-jsdoc");
 const getBaseUrl = () => {
-  if (process.env.RENDER_URL) {
-    return process.env.RENDER_URL;
-  }
-  if (process.env.NODE_ENV === "production") {
-    return process.env.RENDER_URL;
-  }
-  return "http://localhost:3000";
-};
+    return process.env?.RENDER_URL || "http://localhost:3000";
+  };
 
 const options = {
   definition: {
