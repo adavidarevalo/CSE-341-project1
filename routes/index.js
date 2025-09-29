@@ -5,6 +5,7 @@ router.get('/', (req, res) => {
   res.json({ 
     message: 'Welcome to the CSE341 API',
     login: '/auth/login',
+    logout: '/auth/logout',
     documentation: '/api-docs'
   });
 });
