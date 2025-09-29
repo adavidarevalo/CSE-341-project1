@@ -29,7 +29,9 @@ res.status(200).json({
 };
 
 const githubCallback = (req, res) => {
-  res.redirect("/api-docs?login=success");
+  res.status(200).json({ 
+    message: "Login successful" 
+  });
 };
 
 const isAuthenticated = (req, res, next) => {
